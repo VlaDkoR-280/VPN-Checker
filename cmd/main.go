@@ -13,14 +13,14 @@ func main() {
 	defer cancel()
 	adapter, errInit := vpn.InitAdapter(ctx, "test")
 	if errInit != nil {
-		log.Fatal(errInit)
+		log.Fatalf("%+v", errInit)
 	}
 
 	log.Println("VPN adapter initialized")
 
 	ip, errGetIP := adapter.GetIPAddress(ctx)
 	if errGetIP != nil {
-		log.Fatal(errGetIP)
+		log.Fatalf("%+v", errGetIP)
 	}
 
 	log.Println("ip address: ", ip)
