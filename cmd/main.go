@@ -8,6 +8,7 @@ import (
 )
 
 func main() {
+	log.Println("Starting VPN Checker")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	adapter, errInit := vpn.InitAdapter(ctx, "test")
