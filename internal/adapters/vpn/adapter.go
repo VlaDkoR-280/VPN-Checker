@@ -17,7 +17,7 @@ func InitAdapter(ctx context.Context, prefixName string) (*Adapter, error) {
 		ns: fmt.Sprintf("%s-vpn-checker", prefixName),
 	}
 
-	out, err := exec.CommandContext(ctx, "sudo", "ip", "netns", "add", a.ns).CombinedOutput()
+	out, err := exec.CommandContext(ctx, "sudo", "ip", "netns add", a.ns).CombinedOutput()
 	if err != nil {
 		if out != nil {
 			return nil, errors.Wrap(err, string(out))
@@ -25,7 +25,7 @@ func InitAdapter(ctx context.Context, prefixName string) (*Adapter, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	out, err = exec.CommandContext(ctx, "ip", "link add veth1 type veth peer name veth2").CombinedOutput()
+	out, err = exec.CommandContext(ctx, "sudo", "ip", "link add veth1 type veth peer name veth2").CombinedOutput()
 	if err != nil {
 		if out != nil {
 			return nil, errors.Wrap(err, string(out))
