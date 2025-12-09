@@ -3,25 +3,45 @@ package main
 import (
 	"context"
 	"github.com/VlaDkoR-280/VPN-Checker/internal/adapters/vpn"
+	"github.com/VlaDkoR-280/VPN-Checker/internal/bot/telegram"
+	"github.com/VlaDkoR-280/VPN-Checker/internal/panels"
 	"log"
+	"os"
 	"time"
 )
 
+var (
+	baseBotName string
+	botToken    string
+	nsName      string
+)
+
 func main() {
-	log.Println("Starting VPN Checker")
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	vpnAdapter := vpn.InitAdapter(nsName)
+
+	bot := telegram.InitBot(baseBotName, botToken)
+
+	var adapters []panels.PanelAdapter
+
+	adapters = append(adapters, bot)
+
+	panelInfo := panels.InitPanel(adapters)
+
+	vpnStatus := false
+	tCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	adapter, errInit := vpn.InitAdapter(ctx, "test")
-	if errInit != nil {
-		log.Fatalf("%+v", errInit)
+	err := vpnAdapter.CheckStatus(tCtx)
+	if err != nil {
+		log.Printf("Error checking VPN status: %+v", err)
+	} else {
+		vpnStatus = true
 	}
 
-	log.Println("VPN adapter initialized")
-
-	ip, errGetIP := adapter.GetIPAddress(ctx)
-	if errGetIP != nil {
-		log.Fatalf("%+v", errGetIP)
+	panelCtx, panelCancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer panelCancel()
+	if errSetVpnStatus := panelInfo.SetVpnStatus(panelCtx, vpnStatus); errSetVpnStatus != nil {
+		log.Printf("Error setting VPN status: %+v", errSetVpnStatus)
+		os.Exit(1)
 	}
-
-	log.Println("ip address: ", ip)
+	log.Printf("VPN status set to %t", vpnStatus)
 }
