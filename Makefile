@@ -1,5 +1,5 @@
 prefix ?= vpn-test
-base-bot-name ?= "VPN Status"
+base-bot-name ?= 'VPN Status'
 GO ?= /usr/local/go/bin/go
 
 chmod:
