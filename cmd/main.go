@@ -21,11 +21,7 @@ func main() {
 
 	bot := telegram.InitBot(baseBotName, botToken)
 
-	var adapters []panels.PanelAdapter
-
-	adapters = append(adapters, bot)
-
-	panelInfo := panels.InitPanel(adapters)
+	panelInfo := panels.InitPanel(bot)
 
 	vpnStatus := false
 	tCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

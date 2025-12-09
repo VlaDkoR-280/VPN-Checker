@@ -9,7 +9,7 @@ type Panel struct {
 	adapters []PanelAdapter
 }
 
-func InitPanel(adapters []PanelAdapter) Panel {
+func InitPanel(adapters ...PanelAdapter) Panel {
 	return Panel{adapters}
 }
 

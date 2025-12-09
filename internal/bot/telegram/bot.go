@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -19,16 +20,14 @@ type Bot struct {
 
 func InitBot(botBaseName, token string) *Bot {
 	bot := &Bot{Token: token, BotBaseName: botBaseName}
-	bot.baseURL = fmt.Sprintf("https://api.telegram.org/bot%s/", token)
+	bot.baseURL = fmt.Sprintf("https://api.telegram.org/bot%s", token)
 	return bot
 }
 
 func (b *Bot) SetStatusVPN(ctx context.Context, status bool) error {
-	statusTxt := ""
+	statusTxt := "❌"
 	if status {
 		statusTxt = "✅"
-	} else {
-		statusTxt = "❌"
 	}
 
 	timeStr := time.Now().Format("02-01 15:04")
@@ -39,18 +38,33 @@ func (b *Bot) SetStatusVPN(ctx context.Context, status bool) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	defer req.Body.Close()
 
-	body, _ := io.ReadAll(req.Body)
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	log.Println(string(body))
+	if err != nil {
+		return errors.Wrap(err, "failed to read response")
+	}
+
 	answer := Answer{}
 	if errUnmarshal := json.Unmarshal(body, &answer); errUnmarshal != nil {
 		return errors.WithStack(errUnmarshal)
 	}
 
-	if answer.Status == "ok" && answer.Result == "true" {
+	if answer.Status {
 		return nil
 	}
-	return errors.WithStack(errors.New(answer.Result))
+
+	log.Printf("error {%d}: %s", answer.ErrorCode, answer.Description)
+	return errors.WithStack(errors.New("answer.Status"))
 
 }
 

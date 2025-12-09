@@ -37,16 +37,22 @@ ip link set $VETH1 up
 ip link set $VETH3 up
 echo "up $VETH1, $VETH2"
 
+MAIN_IF=$(ip route | grep default | awk '{print $5}')
 echo 1 > /proc/sys/net/ipv4/ip_forward
-iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-iptables -A FORWARD -i %BR -o eth0 -j ACCEPT
-iptables -A FORWARD -i eth0 -o $BR -j ACCEPT
+iptables -t nat -A POSTROUTING -o $MAIN_IF -j MASQUERADE
+iptables -A FORWARD -i $BR -o $MAIN_IF -j ACCEPT
+iptables -A FORWARD -i $MAIN_IF -o $BR -j ACCEPT
 
 ip netns exec $NS ip link set $VETH2 up
 ip netns exec $NS ip link set $VETH4 up
+ip netns exec $NS ip link set lo up
 ip netns exec $NS ip addr add 192.168.89.2/24 dev $VETH2
 
 ip netns exec $NS ip route add default via 192.168.89.1
 
+mkdir -p /etc/netns/$NS
+echo "nameserver 1.1.1.1" | sudo tee -a /etc/netns/vpn-test/resolv.conf
 
+echo "nameserver 8.8.8.8" | sudo tee /etc/netns/$NS/resolv.conf
 
+ip netns exec $NS ping -c 2 -W 1 8.8.8.8
