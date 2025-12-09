@@ -16,6 +16,6 @@ setup: chmod clear
 	./scripts/vpn-setup.sh $(prefix) $(vpn-conf)
 
 	$(GO) mod tidy
-	$(GO) build -ldflags="-X 'main.botToken=$(bot-token)' -X 'main.nsName=$(prefix)-vpn-ns' -X 'main.baseBotName=$(base-bot-name)'" -o /tmp/vpn-checker-program $(build-path)
+	$(GO) build -ldflags="-X 'main.botToken=$(bot-token)' -X 'main.nsName=$(prefix)-vpn-ns' -X 'main.baseBotName=$(base-bot-name)'" -o $(build-path) ./cmd
 
 
