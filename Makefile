@@ -1,5 +1,5 @@
 prefix ?= vpn-test
-base-bot-name ?= 'VPN Status'
+base-bot-name ?= VPN Status
 GO ?= /usr/local/go/bin/go
 
 chmod:
@@ -13,7 +13,6 @@ setup: chmod
 	$(GO) mod tidy
 	$(GO) build -ldflags="-X 'main.botToken=$(bot-token)' -X 'main.nsName=$(prefix)-vpn-ns' -X 'main.baseBotName=$(base-bot-name)'" -o /tmp/vpn-checker-program ./cmd
 
-	ip netns exec $(ns-name) cp /tmp/vpn-checker-program /etc/
 
 test:
 	pwd

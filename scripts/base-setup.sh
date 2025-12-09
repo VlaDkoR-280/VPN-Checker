@@ -40,7 +40,7 @@ echo "up $VETH1, $VETH2"
 echo 1 > /proc/sys/net/ipv4/ip_forward
 iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 iptables -A FORWARD -i %BR -o eth0 -j ACCEPT
-iptables -A FORWARD -i eth0 -o br-vpn -j ACCEPT
+iptables -A FORWARD -i eth0 -o $BR -j ACCEPT
 
 ip netns exec $NS ip link set $VETH2 up
 ip netns exec $NS ip link set $VETH4 up
